@@ -240,7 +240,7 @@
 (() => {
     const add = (a, b) => {
         return a + b;
-    }
+    };
     console.log('화살표 함수', add(1, 2)); // 3    
 })();
 (() => {
