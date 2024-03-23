@@ -57,6 +57,16 @@
     // console.log(val); // (X) 오류 발생
     let val = 0;
 })();
+(() => {
+    // const val; // (X) 오류 발생. 선언과 동시에 초기화해야 합니다.
+    const val = 0; 
+    const obj1 = {x: 1, y: 2};
+    const obj2 = {x: 10, y: 20};
+    // obj1 = obj2; // (X) 오류 발생. const에 값을 할당할 수는 없습니다.
+    obj1.x = obj2.x;
+    obj1.y = obj2.y;
+    console.log('const 개체의 속성은 수정할 수 있습니다.', obj1.x === obj2.x, obj1.y === obj2.y);
+})();
 // ----
 // 타입과 리터럴
 // ----
@@ -67,7 +77,7 @@
     num2 = 0o10; // 8진수
     num2 = 0b101; // 2진수
     console.log('타입과 리터럴 테스트 : 3 / 2', 3 / 2); // #1. 1.5. 정수끼리 나눴을때 실수가 나올 수 있습니다.
-    
+
     const b1 = true; // #2. bool
     const b2 = false;
     
@@ -75,7 +85,12 @@
     const str2 = 'Kim';
     const str3 = `Hello ${str2}`; // ${variable}을 이용하여 변수값과 합성하여 출력 
     console.log('타입과 리터럴 테스트 : 백틱 합성', str3); //. Hello Kim
-    
+ 
+    console.log('이스케이프 문자를 이용한 개행 : ', '첫번째 줄\n두번째줄');
+    console.log('백틱 문자열에서의 개행 : ', `첫번째 줄
+두번째줄`);   
+    console.log('문자열 기호는 ""과 \'\'입니다.');
+
     const a = null; // #4. 값이 없음
     let b; // #5. undefined. 값이 할당되지 않아 자바스크립트에서 초기화 한 값
     
@@ -91,6 +106,16 @@
         console.log('타입과 리터럴 테스트 : 배열 요소 표시', result[i]); // a b c d
     }
 })();
+// ----
+// bigInt
+// ----
+(() => {
+    let bigInt = 1234567890123456789012345678901234567890n;
+    bigInt += 1n;
+    
+    console.log('bigInt : ', bigInt);
+})();
+
 // ----
 // 연산자
 // ----
@@ -112,11 +137,21 @@
     console.log('undefinedVal === undefined는 true', undefinedVal === undefined); // true
     console.log('undefinedVal === null은 false', undefinedVal === null); // false
     console.log('undefinedVal == null은 true가 되버립니다.', undefinedVal == null); // true. undefined인데, true 입니다.    
+
+    let nan = NaN;
+    console.log('nan === NaN', (nan === NaN) === false); // NaN 이지만, === 으로 비교하면 false 입니다.
+    console.log('isNaN(nan)', isNaN(nan) === true); // isNaN()으로 검사해야 합니다.
 })();
 // ----
 // 형변환
 // ----
 (() => {
+    console.log('null 형변환', Number(null) === 0, (!!null) === false, String(null) === 'null');
+    console.log('undefined 형변환', isNaN(Number(undefined)), (!!undefined) === false, String(undefined) === 'undefined');
+    console.log("문자열 '0' 형변환", Number('0') === 0, (!!'0') === true, String('0') === '0');
+    console.log("숫자 0 형변환", Number(0) === 0, (!!0) === false, String(0) === '0');
+    console.log("NaN 형변환", isNaN(Number(NaN)), (!!NaN) === false, String(NaN) === 'NaN');
+
     console.log("Number('1') === 1", Number('1') === 1); // true. Number(), String()등을 이용하여 명시적으로 형변환 할 수 있습니다. 
 
     const val = 10;
@@ -125,6 +160,53 @@
     
     console.log("parseInt('1', 10) === 1", parseInt('1', 10) === 1); // true. 정수로 바꿉니다.
     console.log("parseFloat('1.5') === 1.5", parseFloat('1.5') === 1.5); // true. 실수로 바꿉니다.    
+})();
+// ----
+// nullish
+// ----
+(() => {
+    function getColor1(obj) {
+        if (obj.color !== null && obj.color !== undefined) {
+            return obj.color;
+        }
+        else {
+            return obj.parent.color;
+        }
+    }
+    function getColor2(obj) {
+        return (obj.color !== null && obj.color !== undefined) ? obj.color : obj.parent.color;
+    }
+    function getColor3(obj) {
+        return obj.color || obj.parent.color; // (X) 오동작. obj.color가 true로 형변환 되면, obj.color를 사용하고, 그렇지 않으면, obj.parent.color를 사용합니다. obj.color === 0 이면, obj.parent.color를 사용합니다.
+    }   
+
+    function getColor4(obj) {
+        return obj.color ?? obj.parent.color; 
+    }   
+
+    const parent = {
+        color: 0xFF0000,
+    }
+    const nullObj = {
+        parent: parent,
+        color: null // null 입니다. parent 색상을 사용해야 합니다.
+    };
+    const blackObj = {
+        parent: parent,
+        color: 0x000000 // 색상값이 있습니다. 자신의 색상을 이용해야 합니다.
+    };
+
+    console.log('parent의 color를 사용합니다.', getColor1(nullObj) === 0xFF0000, getColor2(nullObj) === 0xFF0000, getColor3(nullObj) === 0xFF0000);
+    console.log('자기 자신의 color를 사용합니다.', 
+        getColor1(blackObj) === 0x000000,
+        getColor2(blackObj) === 0x000000, 
+        getColor3(blackObj) === 0xFF0000 // getColor3()가 parent.color를 사용합니다.
+    );
+    console.log('자기 자신의 color를 사용합니다.', 
+        getColor1(blackObj) === 0x000000, 
+        getColor2(blackObj) === 0x000000, 
+        getColor4(blackObj) === 0x000000
+    ); 
 })();
 // ----
 // 함수
@@ -277,6 +359,18 @@
     console.log('나머지 인자를 재귀적으로 호출합니다', sum(1, 2, 3) === 1 + 2 + 3);    
 })();
 // ----
+// alert(),  confirm(), prompt()
+// ----
+(() => {
+    alert('안녕하세요.'); // 메시지를 표시합니다.
+
+    const result1 = confirm('제목입니다.', '메시지 입니다.');
+    alert(result1); // 확인시 true, 취소시 false 입니다.
+    
+    const result2 = prompt('제목입니다.', '내용을 입력하세요.'); // input을 통해 내용을 입력받습니다.
+    alert(result2); // 확인 클릭시 입력받은 내용입니다. 취소시 null 입니다.
+})();  
+// ----
 // 개체
 // ----
 (() => {
@@ -374,6 +468,54 @@
     console.log("하위 개체는 여전히 참조 user1.detail.addr === 'Busan'", user1.detail.addr === 'Busan'); // true. 하위 개체는 얕은 복사됩니다.
     console.log("하위 개체는 여전히 참조 user2.detail.addr === 'Busan'", user2.detail.addr === 'Busan');    
 })();
+(() => {
+    const user1 = {
+        name: 'Lee',
+        detail: {
+            addr: 'Seoul'
+        }
+    };
+    const user2 = JSON.parse(JSON.stringify(user1)); // 하위 개체의 속성까지 복제합니다.
+    user2.name = 'Kim';
+    user2.detail.addr = 'Busan';
+    
+    console.log("개체 복제 user1.name === 'Lee'", user1.name === 'Lee'); 
+    console.log("개체 복제 user2.name === 'Kim'", user2.name === 'Kim');
+    
+    console.log("하위 개체도 복제 user1.detail.addr === 'Seoul'", user1.detail.addr === 'Seoul'); // 하위 개체도 복제됩니다.
+    console.log("하위 개체도 복제 user2.detail.addr === 'Busan'", user2.detail.addr === 'Busan');    
+})();
+
+
+(() => {
+    function User(name) { // 생성자 함수
+        this.name = name;
+    }
+    const user1 = new User('Lee'); 
+    const user2 = Object.assign(Object.create(User.prototype), user1); // 동일한 prototype을 사용할 수 있도록 Object.create()를 이용합니다.
+    const user3 = {...user1};
+
+    console.log('생성자 함수 User로 생성했습니다.', user1 instanceof User);
+    console.log('create()와 assign()으로 복제했습니다.', user2 instanceof User);
+    console.log('spread로 개체 속성을 복제한 개체입니다.', user3 instanceof User === false);
+})();
+// ----
+// JSON
+// ----
+(() => {
+    const obj = {
+        x: 10,
+        y: 20,
+        value: '문자열',
+        datas: [1, 2, 3]
+    };
+    
+    const str = JSON.stringify(obj);
+    console.log('JSON으로 만든 문자열', str === '{"x":10,"y":20,"value":"문자열","datas":[1,2,3]}');  
+    
+    const result = JSON.parse(str);
+    console.log('JSON 문자열로부터 개체 생성', result.x === 10 && result.y === 20 && result.value === '문자열' && result.datas[0] === 1 && result.datas[1] === 2 && result.datas[2] === 3);
+})();
 // ----
 // 개체의 생성자 함수
 // ----
@@ -465,7 +607,18 @@
     const arr = [1, 'Kim', 2]; // #2. 타입이 다르더라도 배열로 사용할 수 있습니다.
     for (let i = 0; i < arr.length; ++i) { // #3. length 로 길이를 구할 수 있습니다.
         console.log('배열 요소', arr[i]); // 1 Kim 2 출력
-    }    
+    }  
+    
+    for (let i = 0; i < arr.length; ++i) { 
+        arr[i] = i * 10; // #4
+    }
+    console.log('수정된 배열값', arr[0] === 0 && arr[1] === 10 && arr[2] === 20);  
+
+    const multiArr = [[1, 2, 3], [10, 20, 30]]; // #5
+    console.log('다차원 배열', 
+        multiArr[0][0] === 1 && multiArr[0][1] === 2 && multiArr[0][2] === 3,
+        multiArr[1][0] === 10 && multiArr[1][1] === 20 && multiArr[1][2] === 30
+    );      
 })();
 (() => {
     const arr = new Array(2); // 요소가 2개인 배열을 생성합니다.
@@ -474,21 +627,43 @@
 // 배열 요소 추가/삭제
 (() => {
     const arr = []; // 빈 배열입니다.
-    arr[3] = 30; // 3번 인덱스 요소가 없다면 요소를 추가하고, 20을 대입합니다. 
-    console.log('배열의 3번 인덱스 요소만 추가했지만, 0, 1, 2도 없어서 추가되었습니다', arr.length === 4);
-    console.log('값을 대입받지 않은 요소는 undefined입니다', arr[0] === undefined);
+    arr[3] = 30; // #1. 3번 인덱스 요소가 없다면 요소를 추가하고, 30을 대입합니다. 
+    console.log('배열의 3번 인덱스 요소만 추가했지만, 0, 1, 2도 없어서 추가되었습니다', arr.length === 4); // #1-1
+    console.log('값을 대입받지 않은 요소는 undefined입니다', arr[0] === undefined); // #1-2
     
-    delete arr[3]; // 3번 인덱스 요소를 삭제합니다.
+    delete arr[3]; // #2. 3번 인덱스 요소를 삭제합니다.
     console.log('3번 인덱스를 delete 했지만 크기는 4입니다', arr.length === 4);
     console.log('3번 인덱스는 delete 되어 undefined입니다', arr[3] === undefined);    
 })();
 (() => {
     const arr = []; 
-    arr.push(100); 
-    console.log('배열의 끝에 추가합니다', arr.length === 1 && arr[0] === 100);
+    const length = arr.push(100); 
+    console.log('배열의 끝에 추가합니다', arr.length === 1 && arr[0] === 100, arr.length === length);
     
     arr[arr.length] = 200; // push() 보다 성능이 좋습니다.
-    console.log('배열의 끝에 추가합니다', arr.length === 2 && arr[1] === 200);    
+    console.log('배열의 끝에 추가합니다', arr.length === 2 && arr[1] === 200);
+    
+    const removed = arr.pop();
+    console.log('배열의 마지막 요소를 제거합니다.', arr.length === 1 && removed == 200);
+})();
+(() => {
+    const arr = [0, 1, 2, 3]; 
+    const length = arr.unshift(100); 
+    console.log('uhshift로 추가합니다.', arr.length === 5 && arr[0] === 100, arr.length === length);
+    const removed = arr.shift(); 
+    console.log('uhshift로 제거합니다.', arr.length === 4 && arr[0] === 0 && removed === 100);
+})();
+(() => {
+    const arr = [0, 1, 2, 3]; 
+    let removed = arr.splice(1, 2); // 1번 index부터 2개 요소를 지웁니다. 
+    console.log('splice로 제거합니다.', arr.length === 2 && arr[0] === 0 && arr[1] === 3, removed[0] === 1 && removed[1] === 2);
+    removed = arr.splice(1, 0, 10, 20); // 1번 index 부터 0개 요소를 지운뒤 10, 20을 추가한 배열을 리턴합니다.
+    console.log('splice로 추가합니다.', arr.length === 4 && arr[0] === 0 && arr[1] === 10 && arr[2] === 20 && arr[3] === 3, removed.length === 0);
+})();
+(() => {
+    const arr = [0, 1, 2, 3]; 
+    const filtered = arr.filter((data) => data < 2); // 요소값이 2보다 작은 것만 필터링합니다. 즉, 2이상인 것은 삭제합니다.
+    console.log('filter로 2보다 작은 것만 필터링합니다.', filtered.length === 2 && filtered[0] === 0 && filtered[1] === 1);
 })();
 // 배열 요소 나열
 (() => {
@@ -505,6 +680,17 @@
     arr.forEach(
         (item) => console.log('forEach()로 요소 나열', item)
     );    
+})();
+// 배열 변형
+(() => {
+    const arr = [1, 2, 3];
+    const result = arr.map((item) => item * 10);
+    console.log('map으로 각 요소에 10을 곱함', result[0] === 10 && result[1] === 20 && result[2] === 30);  
+})();
+(() => {
+    const datas = [{id: 10, value: 5}, {id: 11, value: 15}, {id: 12, value: 20}];
+    const result = datas.filter((data) => data.value > 10).map((data) => data.id); 
+    console.log('filter후 map을 적용', result[0] === 11 && result[1] === 12);
 })();
 // 배열 복제
 (() => {
@@ -532,6 +718,34 @@
     }    
 })();
 // ----
+// 문자열
+// ----
+(() => {
+    const str = 'abcde';
+    console.log('문자열 길이', str.length === 5);
+    console.log('하위 문자열 탐색', str.indexOf('cde') === 2);
+    console.log('하위 문자열 유무', str.includes('cde') === true);
+    console.log('문자열 합성', str.concat('fg') === 'abcdefg', str === 'abcde');
+    console.log('하위 문자열 지정한 위치까지 추출', str.slice(2, 5) === 'cde', str === 'abcde');
+    console.log('하위 문자열 마지막까지 추출', str.slice(2) === 'cde', str === 'abcde');  
+    console.log('하위 문자열 변경', str.replace('cde', 'CDE') === 'abCDE', str === 'abcde');  
+    
+    str.toUpperCase();
+    console.log('대문자로 변경', str.toUpperCase() === 'ABCDE');
+    str.toLowerCase();
+    console.log('소문자로 변경', str.toLowerCase() === 'abcde');
+
+    const datas = '홍길동, 성춘향, 이몽룡'; // 콤마 뒤에 공백 문자를 넣어 봤습니다.
+    const result1 = datas.split(','); // 쉼표로 구분합니다.
+    console.log(', 로 파싱', result1[0] === '홍길동' && result1[1] === ' 성춘향' && result1[2] === ' 이몽룡'); // #1. 데이터에 공백 문자가 남아 있습니다.
+
+    const result2 = datas.split(/,| /); // 쉼표 또는 공백 문자로 구분합니다.
+    console.log(', 또는 공백 문자로 파싱', result2[0] === '홍길동' && result2[1] === '' && result2[2] === '성춘향' && result2[3] === '' && result2[4] === '이몽룡'); // #2. 빈문자열이 추가되어 있습니다.
+
+    const result3 = datas.split(/,| /).filter((data) => data != '');
+    console.log('파싱 후 필터링', result3[0] === '홍길동' && result3[1] === '성춘향' && result3[2] === '이몽룡'); // #3
+})();
+// ----
 // Spread
 // ----
 (() => {
@@ -551,7 +765,7 @@
     console.log('기존 배열에 새로운 배열을 추가한 새로운 배열 리턴', [...arr, [6, 7]]); // [1, 2, 3, 4, 5, [6, 7]]    
 })();
 (() => {
-    console.log('개체를 복제합니다', {...{ x: 1, y: 2 } }); // { x: 1, y: 2 } 
+    console.log('개체를 복제하지만, prototype은 복제되지 않습니다', {...{ x: 1, y: 2 } }); // { x: 1, y: 2 } 
     console.log('개체를 합성하여 새 개체를 생성합니다', { x: 1, y: 2, ...{ a: 3, b: 4 } }); // {x: 1, y: 2, a: 3, b: 4 }
     console.log('두 개체를 합성하여 새로운 개체를 생성합니다. 중복된 속성값은 덮어씁니다', { ...{ x: 1, y: 2 }, ...{ y: 100, z: 3 } }); // { x: 1, y: 100, z: 3 }
     console.log('속성을 추가한 새 개체를 생성합니다', { ...{ x: 1, y: 2 }, z: 3 }); // { x: 1, y: 2, z: 3 }
