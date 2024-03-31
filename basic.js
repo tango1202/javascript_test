@@ -6,8 +6,8 @@
     x = 1; // 선언 후 할당
     var y = 2; // #2. 선언과 동시에 할당
     var x = 3; // #3. 선언된 것을 다시 재선언
-    x = 'Hello'; // #4. 타입을 바꿔서 할당
-    z = 4; // #5. 선언하지 않고 사용. 전역 개체의 변수로 선언됨
+    x = 'Hello'; // #4. 타입을 바꿔서 할당할 수 있습니다.
+    z = 4; // #5. 선언하지 않고 사용. 전역 개체의 변수로 선언됩니다.
     
     console.log("변수 테스트", x + (y + z)); // Hello6 (문자열과 2 + 4의 결과가 더해짐)   
 })();
@@ -76,6 +76,8 @@
     num2 = 0x0a; // 16진수
     num2 = 0o10; // 8진수
     num2 = 0b101; // 2진수
+    num2 = 1e3; // 1과 3개의 0
+    console.log('1e3', 1e3 === 1000);
     console.log('타입과 리터럴 테스트 : 3 / 2', 3 / 2); // #1. 1.5. 정수끼리 나눴을때 실수가 나올 수 있습니다.
 
     const b1 = true; // #2. bool
@@ -105,6 +107,9 @@
     for (let i = 0; i < result.length; ++i) {
         console.log('타입과 리터럴 테스트 : 배열 요소 표시', result[i]); // a b c d
     }
+    
+    const wrapper = 'Lee'; // #9. 래퍼 개체
+    console.log('기본 타입에 .을 찍고 wrapper 개체의 속성이나 메서드를 호출할 수 있습니다.', wrapper.length === 3);
 })();
 // ----
 // bigInt
@@ -141,6 +146,25 @@
     let nan = NaN;
     console.log('nan === NaN', (nan === NaN) === false); // NaN 이지만, === 으로 비교하면 false 입니다.
     console.log('isNaN(nan)', isNaN(nan) === true); // isNaN()으로 검사해야 합니다.
+
+    let infinity = Infinity;
+    console.log('infinity === Infinity', (infinity === Infinity) === false); // Infinity 이지만, === 으로 비교하면 false 입니다.
+    console.log('isFinite(infinity) === false', isFinite(infinity) === false); // isFinite()로 검사해야 합니다.
+})();
+// ----
+// Math
+// ----
+(() => {
+    console.log('Math.min()', Math.min(1, 2, 3) === 1); // 인자로 전달한 값중 최소값
+    console.log('Math.max()', Math.max(1, 2, 3) === 3); // 인자로 전달한 값중 최대값
+
+    console.log('Math.floor() - 내림', Math.floor(3.14) === 3);
+    console.log('Math.ceil() - 올림', Math.ceil(3.14) === 4);
+    console.log('Math.round() - 반올림', Math.round(3.14) === 3, Math.round(3.5) === 4);
+    console.log('Math.trunc() - 버림', Math.trunc(3.14) === 3);
+    console.log('소수점 4째자리 반올림', Math.round(3.141592 * 1000) / 1000 === 3.142);
+
+    console.log('toFixed() - 소수점 정밀도 오차 보정', 0.1 + 0.2, (0.1 + 0.2).toFixed(4) === '0.3000'); 
 })();
 // ----
 // 형변환
@@ -156,7 +180,7 @@
 
     const val = 10;
     console.log('val === 10', val === 10); // true
-    console.log("val.toString() === '10'", val.toString() === '10'); // true. 문자열로 바꿉니다.
+    console.log("val.toString() === '10'", val.toString() === '10', val.toString(16) === 'a'); // true. 문자열로 바꿉니다.
     
     console.log("parseInt('1', 10) === 1", parseInt('1', 10) === 1); // true. 정수로 바꿉니다.
     console.log("parseFloat('1.5') === 1.5", parseFloat('1.5') === 1.5); // true. 실수로 바꿉니다.    
@@ -207,6 +231,33 @@
         getColor2(blackObj) === 0x000000, 
         getColor4(blackObj) === 0x000000
     ); 
+})();
+// ----
+// 옵셔널 체이닝
+// ----
+(() => {
+    function getName(obj) {
+        if (obj) { // obj가 유효하고,
+            if (obj.user) { // user 속성이 유효하면
+                return obj.user.name; // name 속성을 리턴합니다.
+            }
+            return undefined;
+        }
+        return undefined;
+    } 
+    
+    console.log('user 속성에서 이름을 구합니다.', getName({user: {name: 'Lee'}}) === 'Lee');
+    console.log('person 속성은 지원하지 않습니다.', getName({person: 'lee'}) === undefined);
+    console.log('null로부터 이름을 구합니다.', getName(null) === undefined);
+})();
+(() => {
+    function getName(obj) {
+        return obj?.user?.name;
+    } 
+    
+    console.log('user 속성에서 이름을 구합니다.', getName({user: {name: 'Lee'}}) === 'Lee');
+    console.log('person 속성은 지원하지 않습니다.', getName({person: 'lee'}) === undefined);
+    console.log('null로부터 이름을 구합니다.', getName(null) === undefined);
 })();
 // ----
 // 함수
@@ -362,13 +413,13 @@
 // alert(),  confirm(), prompt()
 // ----
 (() => {
-    alert('안녕하세요.'); // 메시지를 표시합니다.
+    // alert('안녕하세요.'); // 메시지를 표시합니다.
 
-    const result1 = confirm('제목입니다.', '메시지 입니다.');
-    alert(result1); // 확인시 true, 취소시 false 입니다.
+    // const result1 = confirm('제목입니다.', '메시지 입니다.');
+    // alert(result1); // 확인시 true, 취소시 false 입니다.
     
-    const result2 = prompt('제목입니다.', '내용을 입력하세요.'); // input을 통해 내용을 입력받습니다.
-    alert(result2); // 확인 클릭시 입력받은 내용입니다. 취소시 null 입니다.
+    // const result2 = prompt('제목입니다.', '내용을 입력하세요.'); // input을 통해 내용을 입력받습니다.
+    // alert(result2); // 확인 클릭시 입력받은 내용입니다. 취소시 null 입니다.
 })();  
 // ----
 // 개체
@@ -466,7 +517,17 @@
     console.log("개체 복제 user2.name === 'Kim'", user2.name === 'Kim');
     
     console.log("하위 개체는 여전히 참조 user1.detail.addr === 'Busan'", user1.detail.addr === 'Busan'); // true. 하위 개체는 얕은 복사됩니다.
-    console.log("하위 개체는 여전히 참조 user2.detail.addr === 'Busan'", user2.detail.addr === 'Busan');    
+    console.log("하위 개체는 여전히 참조 user2.detail.addr === 'Busan'", user2.detail.addr === 'Busan'); 
+    
+    const user3 = {...user1}; // spread를 이용하여 복제합니다.
+    user3.name = 'Park';
+    user3.detail.addr = 'Incheon';
+    
+    console.log("개체 복제 user1.name === 'Lee'", user1.name === 'Lee'); // true. user3를 수정했지만, user1은 수정되지 않습니다.
+    console.log("개체 복제 user3.name === 'Park'", user2.name === 'Park');
+    
+    console.log("하위 개체는 여전히 참조 user1.detail.addr === 'Incheon'", user1.detail.addr === 'Incheon'); // true. 하위 개체는 얕은 복사됩니다.
+    console.log("하위 개체는 여전히 참조 user2.detail.addr === 'Incheon'", user2.detail.addr === 'Incheon'); 
 })();
 (() => {
     const user1 = {
@@ -482,8 +543,8 @@
     console.log("개체 복제 user1.name === 'Lee'", user1.name === 'Lee'); 
     console.log("개체 복제 user2.name === 'Kim'", user2.name === 'Kim');
     
-    console.log("하위 개체도 복제 user1.detail.addr === 'Seoul'", user1.detail.addr === 'Seoul'); // 하위 개체도 복제됩니다.
-    console.log("하위 개체도 복제 user2.detail.addr === 'Busan'", user2.detail.addr === 'Busan');    
+    console.log("JSON으로 하위 개체도 복제 user1.detail.addr === 'Seoul'", user1.detail.addr === 'Seoul'); // 하위 개체도 복제됩니다.
+    console.log("JSON으로 하위 개체도 복제 user2.detail.addr === 'Busan'", user2.detail.addr === 'Busan');    
 })();
 
 
@@ -492,12 +553,12 @@
         this.name = name;
     }
     const user1 = new User('Lee'); 
-    const user2 = Object.assign(Object.create(User.prototype), user1); // 동일한 prototype을 사용할 수 있도록 Object.create()를 이용합니다.
-    const user3 = {...user1};
-
+    const user2 = {...user1}; 
+    const user3 = Object.assign(Object.create(User.prototype), user1); // 동일한 prototype을 사용할 수 있도록 Object.create()를 이용합니다.
+    
     console.log('생성자 함수 User로 생성했습니다.', user1 instanceof User);
-    console.log('create()와 assign()으로 복제했습니다.', user2 instanceof User);
-    console.log('spread로 개체 속성을 복제한 개체입니다.', user3 instanceof User === false);
+    console.log('spread로 개체 속성을 복제한 개체입니다.', user2 instanceof Object); // Object로 초기화 되어 있습니다.
+    console.log('create()와 assign()으로 복제했습니다.', user3 instanceof User);
 })();
 // ----
 // JSON
@@ -639,19 +700,22 @@
     const arr = []; 
     const length = arr.push(100); 
     console.log('배열의 끝에 추가합니다', arr.length === 1 && arr[0] === 100, arr.length === length);
+
+    arr.push(1, 2, 3);
+    console.log('여러개의 요소를 추가할 수 있습니다.', arr[1] === 1 && arr[2] === 2 && arr[3] === 3);
     
-    arr[arr.length] = 200; // push() 보다 성능이 좋습니다.
-    console.log('배열의 끝에 추가합니다', arr.length === 2 && arr[1] === 200);
+    arr[arr.length] = 200; // 단일 요소를 추가할 때에는 push() 보다 성능이 좋습니다.
+    console.log('배열의 끝에 추가합니다', arr.length === 5 && arr[4] === 200);
     
     const removed = arr.pop();
-    console.log('배열의 마지막 요소를 제거합니다.', arr.length === 1 && removed == 200);
+    console.log('배열의 마지막 요소를 제거합니다.', arr.length === 4 && removed == 200);
 })();
 (() => {
     const arr = [0, 1, 2, 3]; 
     const length = arr.unshift(100); 
     console.log('uhshift로 추가합니다.', arr.length === 5 && arr[0] === 100, arr.length === length);
     const removed = arr.shift(); 
-    console.log('uhshift로 제거합니다.', arr.length === 4 && arr[0] === 0 && removed === 100);
+    console.log('shift로 제거합니다.', arr.length === 4 && arr[0] === 0 && removed === 100);
 })();
 (() => {
     const arr = [0, 1, 2, 3]; 
@@ -679,7 +743,13 @@
     }
     arr.forEach(
         (item) => console.log('forEach()로 요소 나열', item)
-    );    
+    ); 
+    // 요소를 순회하고, 함수 결과를 다음번 함수 호출의 첫번째 인자로 전달합니다.
+    const result = arr.reduce(
+        (total, item) => total + item, 
+        0 // 최초 호출시 total의 초기값
+    );   
+    console.log('reduce()로 요소 합계 계산', result === 1 + 2 + 3);
 })();
 // 배열 변형
 (() => {
@@ -688,8 +758,14 @@
     console.log('map으로 각 요소에 10을 곱함', result[0] === 10 && result[1] === 20 && result[2] === 30);  
 })();
 (() => {
-    const datas = [{id: 10, value: 5}, {id: 11, value: 15}, {id: 12, value: 20}];
-    const result = datas.filter((data) => data.value > 10).map((data) => data.id); 
+    const datas = [
+        {id: 10, value: 5}, 
+        {id: 11, value: 15}, 
+        {id: 12, value: 20}
+    ];
+    const result = datas
+        .filter((data) => data.value > 10) // value 가 10 보다 큰 요소만 추출 
+        .map((data) => data.id);  // data.id로 구성된 배열을 구함
     console.log('filter후 map을 적용', result[0] === 11 && result[1] === 12);
 })();
 // 배열 복제
@@ -701,7 +777,7 @@
     const other2 = Array.from(arr);
     console.log('other2 = Array.from(arr)은 값은 같지만 다른 배열 개체입니다', other2, other2 !== arr);
     
-    const other3 = arr.slice();
+    const other3 = arr.slice(); // 인수를 전달하지 않으면 배열의 전체 영역을 복사합니다.
     console.log('other2 = arr.slice()은 배열의 특정 부분을 잘라 복사합니다. 값은 같지만 다른 배열 개체입니다', other3, other3 !== arr);
     
     const other4 = [...arr];
@@ -723,6 +799,9 @@
 (() => {
     const str = 'abcde';
     console.log('문자열 길이', str.length === 5);
+    for (const ch of str) {
+        console.log('for of 로 요소 나열', ch);    
+    }
     console.log('하위 문자열 탐색', str.indexOf('cde') === 2);
     console.log('하위 문자열 유무', str.includes('cde') === true);
     console.log('문자열 합성', str.concat('fg') === 'abcdefg', str === 'abcde');
@@ -734,6 +813,7 @@
     console.log('대문자로 변경', str.toUpperCase() === 'ABCDE');
     str.toLowerCase();
     console.log('소문자로 변경', str.toLowerCase() === 'abcde');
+    const str2 = 'abc';
 
     const datas = '홍길동, 성춘향, 이몽룡'; // 콤마 뒤에 공백 문자를 넣어 봤습니다.
     const result1 = datas.split(','); // 쉼표로 구분합니다.
@@ -744,6 +824,19 @@
 
     const result3 = datas.split(/,| /).filter((data) => data != '');
     console.log('파싱 후 필터링', result3[0] === '홍길동' && result3[1] === '성춘향' && result3[2] === '이몽룡'); // #3
+
+})();
+(() => {
+    const str = 'abc';
+    str[0] = 'A'; // (X) 컴파일 오류도 없이 무시됩니다.
+    console.log('문자열 상수를 참조하는 문자열의 각 요소는 수정할 수 없습니다.', str === 'abc');
+
+    const arr = [...str]; // 배열로 만들어 수정합니다.
+    arr[0] = 'A';
+    arr[1] = 'B';
+    arr[2] = 'C';
+
+    console.log('배열을 join() 함수로 문자열로 만듭니다.', arr.join('') === 'ABC');
 })();
 // ----
 // Spread
@@ -769,6 +862,84 @@
     console.log('개체를 합성하여 새 개체를 생성합니다', { x: 1, y: 2, ...{ a: 3, b: 4 } }); // {x: 1, y: 2, a: 3, b: 4 }
     console.log('두 개체를 합성하여 새로운 개체를 생성합니다. 중복된 속성값은 덮어씁니다', { ...{ x: 1, y: 2 }, ...{ y: 100, z: 3 } }); // { x: 1, y: 100, z: 3 }
     console.log('속성을 추가한 새 개체를 생성합니다', { ...{ x: 1, y: 2 }, z: 3 }); // { x: 1, y: 2, z: 3 }
+})();
+// ----
+// Symbol
+// ----
+(() => {
+    const val1 = Symbol();
+    const val2 = Symbol();
+    console.log('Symbol입니다.', val1 !== val2); // Symbol로 생성한 개체는 서로 다름을 보장합니다.
+    console.log('문자열로 변환하면 Symbol()로 변환됩니다.', val1.toString() === 'Symbol()')
+
+    const val3 = Symbol('my'); // 특정 설명을 줄수 있습니다.
+    const val4 = Symbol('my');
+    console.log('my로 구분한 Symbol입니다.', val3 !== val4);  
+})();
+(() => {
+    const globalObj = {};
+
+    const myDataId = Symbol.for('myData');
+    globalObj[myDataId] = 'Lee'; 
+    
+    console.log('유일키로 데이터에 접근합니다.', globalObj[myDataId] === 'Lee'); 
+})();
+// ----
+// Symbol.toPrimitive
+// ----
+(() => {
+    const user = {
+        name: 'Lee',
+        age: 20,
+
+        [Symbol.toPrimitive] : function (hint) {
+            switch(hint) {
+                case 'string':
+                    return this.name;
+                    break;
+                case 'number':
+                    return this.age;
+                    break;
+                case 'default':
+                    return 'default는 그냥 문자열로 합니다.';
+                    break;
+            } 
+        }
+    };
+
+    console.log('hint로 string을 사용하여 변환합니다.', String(user)); // Lee
+    console.log('hint로 number를 사용하여 변환합니다.', +user); // 20
+    console.log('hint로 default 사용하여 변환합니다.', user + 100); // default는 그냥 문자열로 합니다.100
+})();  
+// ----
+// iterable
+// ----
+(() => {
+    const myData = {
+        start: 0,
+        last: 5,
+
+        // #1. Symbol.iterator인 메서드가 있어야 합니다.
+        [Symbol.iterator]: function() {
+            // #2. next() 메서드가 있는 개체를 리턴해야 합니다.
+            return {
+                cur: this.start, // 최초에는 begin입니다.
+                end: this.last,
+                // #3. done과 value로 구성된 개체를 리턴해야 합니다.
+                next() {
+                    return {
+                        done: (this.cur >= this.end) ? true : false,
+                        value: this.cur++ // cur값을 리턴하고, 이후에는 1 증가된 값을 사용합니다.
+                    };    
+                }
+            };
+        }
+    };
+    for (const item of myData) {
+        console.log('이터레이터로 나열합니다.', item); // 0, 1, 2, 3, 4
+    }
+    const arr = Array.from(myData);
+    console.log('Array.from()으로 배열로 만들 수 있습니다.', Array.isArray(arr), arr.toString());
 })();
 // ----
 // 구조 분해
