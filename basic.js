@@ -299,6 +299,11 @@
     console.log('전역 개체 최소화', myApp); // myApp은 즉시 실행되고 소멸됩니다.
 })();
 
+(() => {
+    const myApp = {};
+    console.log('화살표 함수를 이용한 즉시 실행 함수', myApp); 
+})();
+
 // ----
 // 함수 호이스팅
 // ----
@@ -385,9 +390,9 @@
 // 기본값 인자
 // ----
 (() => {
-    function add(a = 1, b = 2) {
+    const add = (a = 1, b = 2) => {
         return a + b;
-    }
+    };
     console.log('인수를 전달하면, 전달한 값을 사용합니다', add(10, 20) === 30);
     console.log('인수가 없으면, 기본값을 사용합니다', add() === 3);
 })();
@@ -395,17 +400,17 @@
 // 나머지 인자
 // ----
 (() => {
-    function f(...params) {
+    const f = (...params) => {
         console.log('...params는 배열입니다', Array.isArray(params));
         params.forEach((param) => console.log('param은 배열 요소입니다', param));
-    }
+    };
     f(1, 2, 3);
 })();
 
 (() => {
-    function sum(first, ...rest) {
+    const sum = (first, ...rest) => {
         return first + ((rest.length === 1) ? rest[0] : sum(...rest)); // ...rest는 배열을 다시 분리하여 나열합니다. spread 참고
-    }
+    };
     
     console.log('나머지 인자를 재귀적으로 호출합니다', sum(1, 2, 3) === 1 + 2 + 3);    
 })();
@@ -420,7 +425,27 @@
     
     // const result2 = prompt('제목입니다.', '내용을 입력하세요.'); // input을 통해 내용을 입력받습니다.
     // alert(result2); // 확인 클릭시 입력받은 내용입니다. 취소시 null 입니다.
-})();  
+})();
+
+// ----
+// setTimeout(), setInterval()
+// ----
+(() => {
+    const f = () => {
+        console.log('1초 뒤에 출력합니다.');
+    };
+    setTimeout(f, 1000);
+
+    const intervalFunc = () => {
+        console.log('1초 간격으로 출력합니다.');
+    };
+
+    const timerId = setInterval(intervalFunc, 1000);
+    setTimeout(() => {
+        clearTimeout(timerId);
+        console.log('타이머를 멈춥니다.');
+    }, 5000); // 5초 뒤에 timer를 삭제합니다.
+})();
 // ----
 // 개체
 // ----
@@ -453,7 +478,7 @@
     const user = {
         name: 'Lee',
         'addr': 'Seoul', // 속성명을 문자열로 선언할 수 있습니다.
-        1 : '1',
+        1 : '1', // 속성명을 숫자로 선언할 수 있습니다.
         2 : '2',
         'my number': '123-4567' // 속성명에 공백 문자등 일반적으로 사용할 수 없는 문자가 있으면 문자열로만 선언할 수 있습니다.
     };
@@ -549,7 +574,7 @@
 
 
 (() => {
-    function User(name) { // 생성자 함수
+    function User(name) { // 생성자 함수.
         this.name = name;
     }
     const user1 = new User('Lee'); 
@@ -558,7 +583,7 @@
     
     console.log('생성자 함수 User로 생성했습니다.', user1 instanceof User);
     console.log('spread로 개체 속성을 복제한 개체입니다.', user2 instanceof Object); // Object로 초기화 되어 있습니다.
-    console.log('create()와 assign()으로 복제했습니다.', user3 instanceof User);
+    console.log('create()와 assign()으로 복제했습니다.', user3 instanceof User); // Object.create()를 이용하면 user개체로 복제됩니다.
 })();
 // ----
 // JSON
@@ -577,6 +602,15 @@
     const result = JSON.parse(str);
     console.log('JSON 문자열로부터 개체 생성', result.x === 10 && result.y === 20 && result.value === '문자열' && result.datas[0] === 1 && result.datas[1] === 2 && result.datas[2] === 3);
 })();
+(() => {
+    const obj = {
+        name: 'Lee',
+        toJSON: function() {
+            return `name is ${this.name}`
+        }
+    };
+    console.log('toJSON을 이용합니다.', JSON.stringify(obj) === '"name is Lee"');
+})();   
 // ----
 // 개체의 생성자 함수
 // ----
@@ -609,7 +643,7 @@
     console.log('user2.getName()', user2.getName()); // Lee    
 })();
 (() => {
-    function User(name) { 
+    function User (name) { 
         this.name = name; 
     }
     const user = User('Kim'); 
@@ -660,6 +694,51 @@
         },
     };    
 })();
+
+// ----
+// Date
+// ----
+(() => {
+    const now = new Date(); // 현재. 혹은 Date.now();
+    const milli = new Date(2 * 60 * 60 * 1000); // UTC 1970년 1월 1일 0시 0분 0초 후 2시간 뒤
+    const ymd = new Date('2024-05-06');
+    const date = new Date(2023, 4, 6, 10, 20, 30, 456); // monthIndex 0부터 시작함. 즉 4는 5월. 2023-05-06 10시20분30초 456밀리초
+    const parse = new Date('2024-05-06T10:20:30.456'); // T 시간 구분 기호
+
+    console.log('현재 시간', now);
+    console.log(`UTC 시분초 밀리초 ${now.getUTCHours()}:${now.getUTCMinutes()}:${now.getUTCSeconds()}.${now.getUTCMilliseconds()}`);
+    console.log('기준시에서 2시간뒤', milli);
+    console.log('지정 년월일', ymd);
+    console.log('지정 년월일시분초밀리초', date);
+    console.log('파싱한 시간', parse);
+
+    console.log(`로컬 년월일 ${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`);
+    console.log(`로컬 시분초 밀리초 ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}`);
+    console.log(`로컬 요일 ${date.getDay()}`); // 0이 일요일
+})();
+(() => {
+    const day = new Date('2024-05-06');
+    day.setDate(day.getDate() + 2)
+    console.log('2일 뒤', day.getDate() === 8);
+
+    const day1 = new Date('2024-05-06');
+    const day2 = new Date('2024-05-08');
+    
+    console.log('날짜 차이', (Number(day2) - Number(day1)) === 2 * 24 * 60 * 60 * 1000); // 2일에 해당 하는 밀리초
+})(); 
+(() => {
+    const date = new Date('2024-05-06');
+   
+    const toYYYYMMDD = (date) => {
+        const yyyy = date.getFullYear();
+        const mm = ('0' + (date.getMonth() + 1)).slice(-2); // 앞에 0을 붙여서 문자열로 만들고, 뒤의 2자리만 취함
+        const dd = ('0' + date.getDate()).slice(-2);
+        return `${yyyy}-${mm}-${dd}`;
+    };
+
+    console.log('기본 형태', date); 
+    console.log('yyyy-mm-dd', toYYYYMMDD(date) === '2024-05-06'); 
+})();     
 // ----
 // 배열
 // ----
@@ -783,6 +862,20 @@
     const other4 = [...arr];
     console.log('[...arr]은 arr 요소들로 새로운 배열을 만듭니다. 값은 같지만 다른 배열 개체입니다', other4, other4 !== arr);    
 })();
+
+// ----
+// 개체와 배열간 변환
+// ----
+(() => {
+    const obj = {
+        name: 'Kim',
+        addr: 'Seoul'
+    };
+    console.log('속성명으로 구성된 배열입니다.', Object.keys(obj)); // ['name', 'addr']
+    console.log('값으로 구성된 배열입니다.', Object.values(obj)); // ['Kim', 'Seoul']
+    console.log('속성명-값 쌍으로 구성된 배열입니다.', Object.entries(obj)); // [['name', 'Kim'], ['addr', 'Seoul']]
+    console.log('fromEntries()로 개체를 만듭니다.', Object.fromEntries([['name', 'Kim'], ['addr', 'Seoul']])); // {name: 'Kim', addr: 'Seoul'}     
+})();
 // ----
 // 유사 배열
 // ----
@@ -842,9 +935,9 @@
 // Spread
 // ----
 (() => {
-    function f(a, b, c) {
+    const f = (a, b, c) => {
         return a + b + c;
-    }
+    };
     
     console.log('배열 [1, 2, 3]을 나열해서 전달합니다', f(...[1, 2, 3]) === 1 + 2 + 3);     
 })();
@@ -860,6 +953,8 @@
 (() => {
     console.log('개체를 복제하지만, prototype은 복제되지 않습니다', {...{ x: 1, y: 2 } }); // { x: 1, y: 2 } 
     console.log('개체를 합성하여 새 개체를 생성합니다', { x: 1, y: 2, ...{ a: 3, b: 4 } }); // {x: 1, y: 2, a: 3, b: 4 }
+    console.log('기존 개체의 특정 속성값을 변경한 새 개체를 생성합니다.', { ...{x: 1, y: 2}, y: 3 }); // {x: 1, y: 3 }
+  
     console.log('두 개체를 합성하여 새로운 개체를 생성합니다. 중복된 속성값은 덮어씁니다', { ...{ x: 1, y: 2 }, ...{ y: 100, z: 3 } }); // { x: 1, y: 100, z: 3 }
     console.log('속성을 추가한 새 개체를 생성합니다', { ...{ x: 1, y: 2 }, z: 3 }); // { x: 1, y: 2, z: 3 }
 })();
@@ -942,6 +1037,38 @@
     console.log('Array.from()으로 배열로 만들 수 있습니다.', Array.isArray(arr), arr.toString());
 })();
 // ----
+// Map
+// ----
+(() => {
+    const map = new Map();
+    map.set(1, 'Kim');
+    console.log('set()으로 값을 설정하고, get으로 구합니다.', map.get(1) === 'Kim');
+    
+    map.set(1, 'Lee');
+    console.log('동일 키값을 값을 수정합니다.', map.get(1) === 'Lee');
+
+     const key = {data: 'myKey'};
+    map.set(key, 'Park');
+    console.log('개체를 키로 사용할 수 있습니다.', map.get(key) === 'Park');
+    console.log('값이 동일한 다른 개체로는 참조할 수 없습니다. undefined입니다.', map.get({data: 'myKey'}) === undefined);  
+
+    map.forEach((value, key) => console.log('Map을 forEach로 나열합니다.', key, value));
+})();
+
+(() => {
+    const obj = {
+        name: 'Kim',
+        addr: 'Seoul'
+    };
+    
+    const map = new Map(Object.entries(obj));
+    console.log('entries()로 개체를 Map으로 변환합니다.', map.get('name') === 'Kim' &&  map.get('addr') === 'Seoul');
+    
+    const obj2 = Object.fromEntries(map);
+    console.log('fromEntries()로 Map을 개체로 변환합니다.', obj2.name === 'Kim' && obj2.addr === 'Seoul');
+})();
+
+// ----
 // 구조 분해
 // ----
 (() => {
@@ -970,6 +1097,60 @@
     const {name, info: {addr}} = user; // 중첩 개체도 분해합니다.
     console.log('중첩 개체도 분해해서 읽습니다', name === 'Kim' && addr === 'Seoul');    
 })();
+(() => {
+    const obj = {
+        x: 1,
+    };
+    const {x, y = 2} = obj;
+    console.log('obj에 y가 없으므로 기본값 0이 할당됩니다.', x === 1 && y === 2);
+})();
+(() => {
+    const obj = {
+        x: 1,
+        y: 2
+    };
+    const {x: left, y: top} = obj;
+    console.log('obj.x를 left에, obj.y를 top에 저장합니다.', left === 1 && top === 2);
+})();
+(() => {
+    // 함수에서는 기본값을 설정하면, 다음에 선언된 모든 인자에 기본값을 주어야 하지만,
+    // 구조 분해를 이용하면, 어떠한 위치에 있던 원하는 것에 기본값을 줄 수 있습니다.
+    const func = ({x = 0, y, z = 2}) => { 
+        return x + y + z;
+    };
+
+    console.log('x, z는 전달하지 않았으므로 기본값이 사용됩니다.', func({ y:1 }) === 0 + 1 + 2); 
+    console.log('인수 전달시 이름으로 매칭되기 때문에 순서를 준수할 필요는 없습니다.', func({ y: 20, x: 10}) === 10 + 20 + 2); 
+ })();
+ (() => {
+    const obj = {
+        name: 'Kim',
+        addr: 'Seoul',
+        age: 10
+    };
+
+    const {name, ...etc} = obj;
+    console.log('...을 이용하면 나머지를 개체로 전달받을 수 있습니다.', name === 'Kim', etc.addr === 'Seoul', etc.age === 10);
+ })();
+
+ (() => {
+    let x = 10;
+    let y = 20;
+    [y, x] = [x, y]; // 임시로 배열로 만들고 순서를 바꿔 구조 분해 합니다.
+    
+    console.log('임시로 배열로 만들고 순서를 바꿔 구조 분해하면, swap한 효과를 얻을 수 있습니다.', x === 20, y === 10);
+ })();
+ (() => {
+    const obj = {
+        name: 'Kim',
+        addr: 'Seoul',
+        age: 10
+    };
+
+    for (let [key, value] of Object.entries(obj)) {
+       console.log('개체의 각 속성을 key, value로 분해했습니다.', key, value); 
+    }
+ })();
 
 
 

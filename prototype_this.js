@@ -58,9 +58,9 @@
     console.log('user2.addr은 Seoul 입니다', user2.addr === 'Seoul'); 
 })();
 (() => {
-    String.prototype.add = function(a, b) {
+    String.prototype.add = (a, b) => {
         return a + b;
-    }
+    };
     console.log('기본타입인 String에 add 함수를 추가했습니다. String.add(1, 2)', 'test'.add(1, 2)); // 3  
 })();
 // ----
@@ -191,7 +191,7 @@
     }
     PrototypeUser.prototype.getName = function() {
         return this.name; // 해당 메서드를 호출한 개체입니다.
-    }
+    };
     var user5 = new PrototypeUser('Kim');
     var user6 = new PrototypeUser('Lee');
     
