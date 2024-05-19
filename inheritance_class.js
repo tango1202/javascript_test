@@ -122,7 +122,7 @@
     console.log('Base.prototype을 복제했지만, constructor는 Derived입니다', derived.__proto__.constructor === Derived);
     console.log('derived는 Derived로부터 생성되었습니다', derived instanceof Derived);
     console.log('derived는 Base로부터 생성되었습니다', derived instanceof Base);
-    
+
     derived.baseMethod(); // baseMethod 입니다 base from derived
     derived.derivedMethod(); // derivedMethod 입니다 derived    
 })();
@@ -162,3 +162,90 @@
     
     console.log(MyClass.staticMethod()); // 정적 함수 입니다    
 })();
+// ----
+// protected, private
+// ----
+(() => {
+    class Base {
+        _protectedVal = 0; // _는 관습적일 뿐, 실제 접근 통제를 하지 못합니다.
+        get val() {
+            return this._protectedVal;
+        } 
+        set val(val) {
+            this._protectedVal = val;
+        }
+    };
+    class Derived extends Base {
+        inc() {
+            this._protectedVal += 1;
+        }
+    };
+
+    const data = new Derived();
+    data._protectedVal = 10; // 접근이 가능합니다.
+    data.inc();
+    console.log('protected는 지원하지 않습니다.', data.val === 11);
+})();
+(() => {
+    class Base {
+        #privateVal = 0; // #은 자기 자신 외에는 접근할 수 없습니다.
+        get val() {
+            return this.#privateVal;
+        } 
+        set val(val) {
+            this.#privateVal = val;
+        }
+    };
+    class Derived extends Base {
+        inc() {
+            // this.#privateVal += 1; // (X) 자식 클래스에서도 접근할 수 없습니다.
+            this.val += 1;
+        }
+    };
+
+    const data = new Derived();
+    // data.#privateVal = 10; // (X) 외부에서 접근할 수 없습니다.
+    data.inc();
+    console.log('getter, setter로만 접근할 수 있습니다.', data.val === 1);
+})();
+// ----
+// 클래스 MixIn
+// ----
+(() => {
+    class Data {
+        constructor(a, b) { 
+            this.a = a;
+            this.b = b;
+        } 
+    };
+
+    const BasicOperationMixIn = {
+        plus: function() { // this를 사용하므로 화살표 함수를 사용하지 않습니다.
+            return this.a + this.b;
+        },
+        minus: function() {
+            return this.a - this.b;
+        },
+        multiply: function() {
+            return this.a * this.b;
+        },
+        divide: function() {
+            return this.a / this.b;
+        } 
+    };
+
+    const data1 = new Data(1, 2);
+    // data1.plus(); // (X) plus 메서드가 없으므로 오류
+
+    Object.assign(data1, BasicOperationMixIn); // data1 개체에 사칙 연산 추가
+    console.log('개체에 MixIn', data1.plus() === 1 + 2);
+
+    const data2 = new Data(3, 4);
+    // data2.plus(); // (X) data1에만 사칙연산을 추가 했으므로 data2는 plus 메서드가 없으므로 오류
+    Object.assign(Data.prototype, BasicOperationMixIn); // 프로토타입 개체에 사칙 연산 추가
+    console.log('프로타입에 MixIn', data2.plus() === 3 + 4);
+    
+    console.log('프로타입에 MixIn했으므로, 이후로 생성되는 모든 개체에 적용됨', (new Data(5, 6)).plus() === 5 + 6);  
+})();   
+
+

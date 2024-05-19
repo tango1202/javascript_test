@@ -519,6 +519,29 @@
     }    
 })();
 // ----
+// defineProperty(), getOwnPropertyDescriptor()
+// ----
+(() => {
+    const user = {
+        name: 'Lee',
+        addr: 'Seoul'
+    };
+
+    for (let prop in user) {
+        console.log('속성명 :' + prop , '속성값 :' + user[prop]); // name과 addr이 열거됩니다.
+    }
+
+    Object.defineProperty(user, 'name', {
+        enumerable: false // name은 열거되지 않게 합니다.
+    });
+    for (let prop in user) {
+        console.log('name은 열거되지 않습니다. 속성명 :' + prop , '속성값 :' + user[prop]);
+    }
+
+    const descriptor = Object.getOwnPropertyDescriptor(user, 'name');
+    console.log('name의 enumerable은 false 입니다.', descriptor.enumerable === false);
+})();
+// ----
 // 개체 복제/동결
 // ----
 (() => {
@@ -584,6 +607,24 @@
     console.log('생성자 함수 User로 생성했습니다.', user1 instanceof User);
     console.log('spread로 개체 속성을 복제한 개체입니다.', user2 instanceof Object); // Object로 초기화 되어 있습니다.
     console.log('create()와 assign()으로 복제했습니다.', user3 instanceof User); // Object.create()를 이용하면 user개체로 복제됩니다.
+})();
+// ----
+// getter, setter
+// ----
+(() => {
+    const user = {
+        _name: '', // 실제 name 값을 저장합니다.
+        get name() {
+            return this._name;
+        }, 
+        set name(name) {
+            // 값을 설정하기 전에 유효성 검사를 할 수 있고, 수정할 수도 있습니다.
+            this._name = 'name is ' + name;
+        }
+    };
+
+    user.name = 'Lee';
+    console.log('setter로 이름을 수정했습니다.', user.name === 'name is Lee');
 })();
 // ----
 // JSON

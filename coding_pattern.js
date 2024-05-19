@@ -12,7 +12,7 @@
     
         // public 함수 선언들로 구성된 개체를 리턴합니다.
         return {
-            publicFunc: publicFunc // 함수가 리턴되므로 함수 실행 환경이 소멸되지 않고 유지됩니다.
+            publicFunc // 함수가 리턴되므로 함수 실행 환경이 소멸되지 않고 유지됩니다.
         };
     })();
     
@@ -48,7 +48,7 @@
     const user2 = {name: 'Lee'};
     
     const getNameMixIn = (obj) => {
-        obj.getName = function() {
+        obj.getName = function() { // this를 사용하므로 화살표 함수를 사용하지 않습니다.
             return this.name;
         };
     }; 
@@ -78,8 +78,8 @@
     
         // MixIn 함수 선언들로 구성된 개체를 리턴합니다.
         return {
-            getNameMixIn: getNameMixIn,
-            printNameMixIn: printNameMixIn,
+            getNameMixIn,
+            printNameMixIn,
         };
     })();       
     
@@ -90,6 +90,26 @@
     console.log('MixInModule에서 추가된 메서드', user1.getName()); // Kim
     user2.printName(); // Lee 출력    
 })();
+(() => {
+    const user1 = {name: 'Kim'};
+    const user2 = {name: 'Lee'};
+
+    const mixIn = {
+        getName: function() {
+            return this.name;
+        },
+        printName: function() {
+            console.log(this.name);
+        }
+    }; 
+
+    // user1, user2에 mixIn을 추가합니다.
+    Object.assign(user1, mixIn); // 기존 속성중 동일한게 있으면 덮어쓰고, 없다면 추가
+    Object.assign(user2, mixIn);
+    
+    console.log('Object.assign()을 이용한 MixIn', user1.getName()); // Kim
+    user2.printName(); // Lee 출력    
+})();   
 // ----
 // 코딩 패턴 - 정적 함수
 // ----

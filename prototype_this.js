@@ -198,3 +198,16 @@
     console.log('프로토타입 메서드에서 this는 user5입니다', user5.getName() === 'Kim'); // this는 user5입니다.
     console.log('프로토타입 메서드에서 this는 user6입니다', user6.getName() === 'Lee'); // this는 user6입니다.    
 })();
+// ----
+// 함수 바인딩
+// ----
+(() => {
+    const sum = (a, b) => {
+        return a + b;
+    }
+    const inc = sum.bind(null, 1); // a 인자로 항상 1이 전달되게 합니다. 
+
+    console.log('함수 바인딩하여 인자 1개 짜리 함수로 바꿉니다.', inc(10) === 1 + 10);
+})();
+
+
