@@ -7,3 +7,8 @@ import * as M from './myModule.js';
     console.log('myModule.js의 plus 함수 입니다', M.plus(1, 2) === 3);
     console.log('myModule.js의 minus 함수 입니다', M.minus(1, 2) === -1);
 })();
+
+(() => {
+    console.log('myModule.js의 plus 함수 입니다', M.plus(1, 2) === 3);
+    console.log('myModule.js의 minus 함수 입니다', M.minus(1, 2) === -1);
+})();

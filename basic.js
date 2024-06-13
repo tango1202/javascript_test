@@ -134,7 +134,7 @@
     console.log("add(+'1', 2) 는 3", add(+'1', 2)); // 3. '1'을 숫자로 바꾸고 더함
 })();
 (() => {
-    console.log("1 == '1' 는 true", 1 === '1'); // true
+    console.log("1 == '1' 는 적극적으로 형변환하여 true", 1 === '1'); // true
     console.log("1 === '1' 는 false", 1 === '1'); // false
 })();
 (() => {
@@ -151,6 +151,7 @@
     console.log('infinity === Infinity', (infinity === Infinity) === false); // Infinity 이지만, === 으로 비교하면 false 입니다.
     console.log('isFinite(infinity) === false', isFinite(infinity) === false); // isFinite()로 검사해야 합니다.
 })();
+
 // ----
 // Math
 // ----
@@ -172,9 +173,11 @@
 (() => {
     console.log('null 형변환', Number(null) === 0, (!!null) === false, String(null) === 'null');
     console.log('undefined 형변환', isNaN(Number(undefined)), (!!undefined) === false, String(undefined) === 'undefined');
-    console.log("문자열 '0' 형변환", Number('0') === 0, (!!'0') === true, String('0') === '0');
     console.log("숫자 0 형변환", Number(0) === 0, (!!0) === false, String(0) === '0');
     console.log("NaN 형변환", isNaN(Number(NaN)), (!!NaN) === false, String(NaN) === 'NaN');
+    console.log("문자열 '0' 형변환", Number('0') === 0, (!!'0') === true, String('0') === '0');
+    console.log("빈 문자열 형변환", Number('') === 0, (!!'') === false, String('') === '');
+    console.log("빈 배열 형변환", Number([]) === 0, (!![]) === true, String([]) === '');
 
     console.log("Number('1') === 1", Number('1') === 1); // true. Number(), String()등을 이용하여 명시적으로 형변환 할 수 있습니다. 
 
@@ -185,6 +188,66 @@
     console.log("parseInt('1', 10) === 1", parseInt('1', 10) === 1); // true. 정수로 바꿉니다.
     console.log("parseFloat('1.5') === 1.5", parseFloat('1.5') === 1.5); // true. 실수로 바꿉니다.    
 })();
+// ----
+// 개체 할당 축약 표현
+// ----
+(() => {
+    let val = ''; // #1. 미리 선언합니다.
+    const a = 'a';
+    const b = 'b';
+
+    const condition = true;
+    if (condition) {
+        val = a;
+    }
+    else {
+        val = b;
+    }
+
+    console.log('조건이 참이므로 a 입니다.', val === a);
+})();
+(() => {
+    const a = 'a';
+    const b = 'b';
+
+    const condition = true;
+    const val = condition ? a : b; // 선언과 동시에 초기화할 수 있습니다.
+
+    console.log('조건이 참이므로 a 입니다.', val === a);
+})();
+(() => {
+    const a = null;
+
+    const val1 = a === null ? 'default' : a; // #1
+    console.log('a가 null 입니다.', val1 === 'default');
+
+    const val2 = a !== null ? a : 'default';  // #2
+    console.log('a가 null 입니다.', val2 === 'default');
+
+    const val3 = !a ? 'default' : a; // #3. null, undefined, 숫자 0, NaN, 빈 문자열도 검사합니다. 
+    console.log('a가 null 입니다.', val3 === 'default');
+    
+    const val4 = a ? a : 'default'; // #4. null, undefined, 숫자 0, NaN, 빈 문자열도 검사합니다. 기본값이 뒤에 있어 가독성이 좋습니다. 
+    console.log('a가 null 입니다.', val4 === 'default');
+})();
+
+(() => {
+    const a = null;
+
+    const val1 = a || 'default'; // #1 
+    console.log('a가 null 이면 다음식을 평가합니다.', val1 === 'default');
+
+    const val2 = a && 'default'; // #2 
+    console.log('a가 null 이면 다음식을 평가하지 않습니다.', val2 === a);
+})();
+(() => {
+    const a = 'defalut';
+    function doSomething() {
+        return 'something';
+    }
+    console.log('a가 true인 경우만 다음식을 평가합니다.', (a && doSomething()) === 'something');
+})();
+
 // ----
 // nullish
 // ----
@@ -326,7 +389,7 @@
 // 문자열로부터 함수 생성
 // ----
 (() => {
-    const myAdd = new Function('a', 'b','return a + b'); // 임의의 문자열로 함수를 생성합니다.
+    const myAdd = new Function('a', 'b', 'return a + b'); // 임의의 문자열로 함수를 생성합니다.
     console.log('문자열로부터 함수 생성', myAdd(1, 2)); // 3    
 })();
 (() => {
@@ -541,6 +604,22 @@
     const descriptor = Object.getOwnPropertyDescriptor(user, 'name');
     console.log('name의 enumerable은 false 입니다.', descriptor.enumerable === false);
 })();
+
+// ----
+// 개체 비교
+// ----
+(() => {
+    const user1 = {name: 'Lee'};
+    const user2 = {name: 'Lee'};
+    
+    console.log('값은 같지만 다른 개체입니다. user1 !== user2', user1 !== user2); 
+    console.log('개체의 하위 속성을 모두 뒤져서 기본 타입끼리  검사해야 합니다. user1.name === user2.name', user1.name === user2.name); // #1
+
+    const user3 = user1; // #2. 대입하면 동일 개체입니다.
+    console.log('개체를 대입하면 동일 개체입니다. user1 === user3', user1 === user3);
+    user1.name = 'Kim';
+    console.log('user1을 수정하면, 동일 개체인 user3도 반영됩니다.', user3.name === 'Kim');
+})();
 // ----
 // 개체 복제/동결
 // ----
@@ -692,6 +771,19 @@
     console.log('리턴값이 없으므로 user는 undefined 입니다', user === undefined); // #1
     console.log('this는 전역 개체이므로 전역 개체에 name을 저장합니다.', name === 'Kim'); // #2    
 })();
+
+(() => {
+    const num1 = new Number(1);
+    const num2 = new Number(1);
+
+    console.log('Number()로 기본타입 개체를 생성합니다. 기본 타입과 검사하려먼 형변환 해야 합니다. 개체이므로 실제값은 동일하지만 === 이진 않습니다.', num1 !== 1 && Number(num1) === 1, num1 !== num2);
+
+    const str1 = new String('Kim');
+    const str2 = new String('Kim');  
+    
+    console.log('String()으로 기본타입 개체를 생성합니다. 기본타입과 검사하려면 형변환 해야 합니다. 개체이므로 실제값은 동일하지만 === 이진 않습니다.', str1 !== 'Kim', String(str2) === 'Kim', str1 !== str2);
+})();
+
 // ----
 // 속성 축약 표현
 // ----
