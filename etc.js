@@ -254,3 +254,37 @@
     })();
     console.log('async 호출후입니다.'); // #2
 })(); 
+
+// ----
+// generator
+// ----
+(() => {
+    const genFunc = function* () { // #1
+        yield 1; // #2. 1을 반환하고 일시 정지
+        yield 2; // #3. 2를 반환하고 일시 정지 
+        return 3; // #4. 3을 반환하고 종료
+    };
+
+    const generator = genFunc();
+    console.log('generator 1회', generator.next());
+    console.log('generator 2회', generator.next());
+    console.log('generator 3회', generator.next());
+    console.log('generator 4회', generator.next()); // #5
+})();
+
+(() => {
+    const genFunc = function* () { 
+        yield 1; 
+        yield 2; 
+        yield 3; // 마지막 것도 순회하기 위해 yield 사용
+    };
+
+    const generator = genFunc();
+
+    for (let val of generator) {
+        console.log('generator value : ', val);
+    }
+
+})();
+
+
