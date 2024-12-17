@@ -16,7 +16,7 @@
 // ----
 (() => {
     console.log('변수 호이스팅', myHoistingVar); // undefined. hoisting되어 상단에 선언되고 값을 지정하지 않아 undefined 입니다.
-    var myHoistingVar = 100;
+    var myHoistingVar = 100; // 값이 할당되면, 할당된 값이 사용됩니다.
     console.log('변수 호이스팅', myHoistingVar); // 100
 })();
 // ----
