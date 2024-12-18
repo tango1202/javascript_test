@@ -241,7 +241,7 @@
     console.log('a가 null 이면 다음식을 평가하지 않습니다.', val2 === a);
 })();
 (() => {
-    const a = 'defalut';
+    const a = 'default';
     function doSomething() {
         return 'something';
     }
@@ -514,7 +514,13 @@
 // ----
 (() => {
     const empty = {}; // 빈 개체
-
+    const user = {
+        name: 'Lee' // name 속성이 있는 개체
+    };
+    console.log('개체 속성 접근, . 사용', user.name === 'Lee');
+    console.log('개체 속성 접근, 속성명 사용', user['name'] === 'Lee');
+})();   
+(() => {
     // 리터럴 방식 개체 생성
     const user1 = {
         name: 'Lee',
@@ -535,6 +541,16 @@
         return this.name;
     }; 
     console.log('개체 메서드 호출 user2.getName()', user2.getName()); // Lee    
+
+    // #5. 내부에서만 사용하는 속성은 관습적으로 _을 붙임
+    const user3 = {
+        _name1: 'Bruce', // 외부에서 사용하지 마세요.
+        _name2: 'Lee', // 외부에서 사용하지 마세요.
+        getName: function() {
+            return `${this._name1} ${this._name2}`
+        }
+    } 
+    console.log('개체 메서드 호출 user3.getName()', user3.getName()); // Bruce Lee
 })();
 // 개체 속성 접근
 (() => {
@@ -681,11 +697,11 @@
     }
     const user1 = new User('Lee'); 
     const user2 = {...user1}; 
-    const user3 = Object.assign(Object.create(User.prototype), user1); // 동일한 prototype을 사용할 수 있도록 Object.create()를 이용합니다.
+    const user3 = Object.assign(Object.create(User.prototype), user1); // #2. 동일한 prototype을 사용할 수 있도록 Object.create()를 이용합니다.
     
     console.log('생성자 함수 User로 생성했습니다.', user1 instanceof User);
-    console.log('spread로 개체 속성을 복제한 개체입니다.', user2 instanceof Object); // Object로 초기화 되어 있습니다.
-    console.log('create()와 assign()으로 복제했습니다.', user3 instanceof User); // Object.create()를 이용하면 user개체로 복제됩니다.
+    console.log('spread로 개체 속성을 복제한 개체입니다.', user2 instanceof Object); // #1. Object로 초기화 되어 있습니다.
+    console.log('create()와 assign()으로 복제했습니다.', user3 instanceof User); // #2. Object.create()를 이용하면 user개체로 복제됩니다.
 })();
 // ----
 // getter, setter
@@ -726,7 +742,7 @@
     const obj = {
         name: 'Lee',
         toJSON: function() {
-            return `name is ${this.name}`
+            return `name is ${this.name}`;
         }
     };
     console.log('toJSON을 이용합니다.', JSON.stringify(obj) === '"name is Lee"');
@@ -753,7 +769,7 @@
         this.getName = function() {
             return this.name;
         };
-        // 암시적으로 this 개체를 리턴합니다.
+        // #4. 암시적으로 this 개체를 리턴합니다.
     }
     
     const user1 = new User('Kim', '123-4567'); // #3. new로 함수를 호출합니다.
@@ -766,7 +782,7 @@
     function User (name) { 
         this.name = name; 
     }
-    const user = User('Kim'); 
+    const user = User('Kim'); // new를 생략했습니다.
     
     console.log('리턴값이 없으므로 user는 undefined 입니다', user === undefined); // #1
     console.log('this는 전역 개체이므로 전역 개체에 name을 저장합니다.', name === 'Kim'); // #2    
