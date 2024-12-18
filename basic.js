@@ -966,7 +966,7 @@
     for (const item of arr) {
         console.log('for of 로 요소 나열', item);    
     }
-    for (let prop in arr) { // 배열 요소와 추가 속성이 나열됩니다. 성능일 떨어지니 사용하지 마세요.
+    for (let prop in arr) { // 배열 요소와 추가 속성이 나열됩니다. 성능이 떨어지니 사용하지 마세요.
         console.log('for in 으로 요소 나열', arr[prop]);
     }
     arr.forEach(
