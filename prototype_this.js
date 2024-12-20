@@ -67,18 +67,18 @@
 // 프로토타입 변경
 // ----
 (() => {
-    function User(name) {
+    function User(name) { // #1. 생성자 함수입니다.
         this.name = name;
     }
     User.prototype = { // 프로토타입을 다른 개체로 변경할 수도 있습니다.
-        constructor: User, // 생성자 함수로 설정합니다.
+        constructor: User, // #2. #1의 생성자 함수로 설정합니다.
         addr: 'Seoul'
     };
     
     const user1 = new User('Kim');
     const user2 = new User('Lee');
     
-    // user1.name, user2.name은 addr 속성이 없으므로 User.prorotype.addr을 사용합니다.
+    // user1.name, user2.name은 addr 속성이 없으므로 User.prototype.addr을 사용합니다.
     console.log('addr은 프로토타입의 속성입니다', user1.name === 'Kim' && user1.addr === 'Seoul'); 
     console.log('addr은 프로토타입의 속성입니다', user2.name === 'Lee' && user2.addr === 'Seoul'); 
     
@@ -91,7 +91,7 @@
     function User(name) {
         this.name = name;
     }
-    User.prototype.getName = function() { // 프로토타입 개체에 1개만 선언합니다.
+    User.prototype.getName = function() { // 프로토타입 개체에 메서드를 한번만 선언합니다.
         return this.name;
     };
     
@@ -126,7 +126,7 @@
     const user1 = {
         name: 'Lee',
         getName: function() {
-            return this.name; // this는 user1입니다.
+            return this.name; // #3-1. this는 user1입니다.
         }
     };
     console.log('개체 메서드에서 this는 user1입니다', user1.getName() === 'Lee'); 
@@ -146,12 +146,12 @@
         name: 'Park',
         getNestName: function() {
             function f() {
-                return this.name; // this는 전역 개체입니다. 
+                return this.name; // #5-1. this는 전역 개체입니다. 
             }
             return f();
         },
         getName: function() {
-            var that = this; // 클로저를 활용하여 that으로 저장해 둡니다.
+            var that = this; // #5-2. 클로저를 활용하여 that으로 저장해 둡니다.
             function f() {
                 return that.name; // that은 바깥 함수의 this입니다.
             }
@@ -166,17 +166,20 @@
     const user4 = {
         name: 'Park',
         getArrowName: () => { // 메서드를 화살표 함수로 선언했습니다.
-            return this.name; // this는 전역 개체입니다. 
+            return this.name; // #6-1. this는 전역 개체입니다. 
         },        
         getNestName: function() {
             function f() {
-                return this.name; // this는 전역 개체입니다. 
+                return this.name; // #5-1. this는 전역 개체입니다. 
             }
             return f();
         },
         getArrowNestName: function() {
             const arrow = () => {
-                return this.name; // 화살표 함수에서는 this가 없어 상위 환경에서 찾습니다.
+                // #6-2. 화살표 함수에서는 this가 없어 상위 환경에서 찾습니다.
+                // 상위 환경인 getArrowNestName()은 function으로 선언되었기 때문에 #3에서 처럼 this가 있고,
+                // user4입니다.
+                return this.name; 
             }
             return arrow();
         },
@@ -190,13 +193,13 @@
         this.name = name;
     }
     PrototypeUser.prototype.getName = function() {
-        return this.name; // 해당 메서드를 호출한 개체입니다.
+        return this.name; // 프로토타입 개체가 아닙니다. 해당 메서드를 호출한 개체입니다.
     };
     var user5 = new PrototypeUser('Kim');
     var user6 = new PrototypeUser('Lee');
     
     console.log('프로토타입 메서드에서 this는 user5입니다', user5.getName() === 'Kim'); // this는 user5입니다.
-    console.log('프로토타입 메서드에서 this는 user6입니다', user6.getName() === 'Lee'); // this는 user6입니다.    
+    console.log('프로토타입 메서드에서 this는 user6입니다', user6.getName() === 'Lee'); // this는 user6입니다.
 })();
 // ----
 // 함수 바인딩

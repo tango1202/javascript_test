@@ -23,18 +23,18 @@
 // 코딩 패턴 - 즉시 실행 함수를 이용한 개체 선언
 // ----
 (() => {
-    const User = (() => { // 즉시 실행 함수입니다.
-        function User(name) { // #1
+    const User = (() => { // #1. 즉시 실행 함수입니다.
+        function User(name) { // #2. 생성자 함수
             this.name = name;
         }
         User.prototype.getName = function() { // 메서드는 프로토타입에 선언합니다.
             return this.name;
         }; 
         
-        return User; // #1. 생성자 함수를 리턴합니다.
+        return User; // #3. #2 생성자 함수를 리턴합니다.
     })();
     
-    const user1 = new User('Kim');
+    const user1 = new User('Kim'); // #4. #1 개체의 리턴값인 #3을 new () 형태로 실행합니다. 즉, #2 생성자 함수를 호출합니다.
     const user2 = new User('Lee');
     
     console.log('즉시 실행 함수를 이용한 개체 선언', user1.getName()); // Kim
