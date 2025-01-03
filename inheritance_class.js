@@ -116,6 +116,7 @@
     
     const base = new Base('base'); // #6. 생성자 함수처럼 new 로 생성합니다.
     base.baseMethod(); // baseMethod 입니다 base
+    console.log('baseMethod는 프로토타입에 선언됩니다.', base.baseMethod === base.__proto__.baseMethod); // #2. 메서드는 알아서 프로토타입에 선언됩니다.
     
     const derived = new Derived('base from derived', 'derived'); 
     
